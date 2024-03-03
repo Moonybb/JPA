@@ -1,20 +1,26 @@
 package hellojpa;
 
-import lombok.Getter;
-import lombok.Setter;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
-@Table (name = "Member")
-@Getter
-@Setter
-public class Member {
-
-    @Id
+@SequenceGenerator(name = "member_seq_generator", sequenceName = "member_seq")
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+public @Getter @Setter class Member {
+    @Id @GeneratedValue
+    @Column(name = "memberId")
     private Long id;
-    private String name;
+
+    @Column(name = "USERNAME")
+    private String userName;
+
+//    @Column(name = "TEAM_ID")
+//    private Long teamId;
+
+    @ManyToOne
+    @JoinColumn(name = "TEAM_ID")
+    private Team team;
 
 }
