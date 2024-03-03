@@ -7,7 +7,6 @@ import lombok.*;
 @SequenceGenerator(name = "member_seq_generator", sequenceName = "member_seq")
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public @Getter @Setter class Member {
     @Id @GeneratedValue
     @Column(name = "memberId")
