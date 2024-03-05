@@ -16,24 +16,37 @@ public class JpaMain {
         tx.begin();
 
         try {
-            Team team = new Team();
-            team.setName("teamA");
-            em.persist(team);
+            Team teamA = new Team();
+            teamA.setName("teamA");
+            em.persist(teamA);
 
-            Member member = new Member();
-            member.setUserName("member1");
-            member.setTeam(team);
-            em.persist(member);
+            Team teamB = new Team();
+            teamB.setName("teamB");
+            em.persist(teamB);
+
+            Member member1 = new Member();
+            member1.setUserName("member1");
+            member1.setTeam(teamA);
+            em.persist(member1);
+
+            Member member2 = new Member();
+            member2.setUserName("member2");
+            member2.setTeam(teamB);
+            em.persist(member2);
 
             em.flush();
             em.clear();
 
-            Member m = em.find(Member.class, member.getId());
-            System.out.println("m = " + m.getTeam().getClass());
+//            Member m = em.find(Member.class, member.getId());
+//            System.out.println("m = " + m.getTeam().getClass());
+//
+//            System.out.println("======================");
+//            m.getTeam().getName(); // 프록시 초기화
+//            System.out.println("======================");
 
-            System.out.println("======================");
-            m.getTeam().getName(); // 프록시 초기화
-            System.out.println("======================");
+            // 실무에서는 LAZY 지연로딩을 사용하자
+            List<Member> members = em.createQuery("select m from Member m join fetch m.team", Member.class)
+                    .getResultList();
 
             tx.commit();
         }catch (Exception e) {
