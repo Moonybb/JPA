@@ -25,8 +25,13 @@ public class JpaMain {
             parent.addChild(child2);
 
             em.persist(parent);
-            em.persist(child1);
-            em.persist(child2);
+
+            em.flush();
+            em.clear();
+
+            // orphanRemoval 가 true기 때문에 부모가 삭제되면 딸려있는 자식들이 모두 삭제됨
+            Parent findParent = em.find(Parent.class, parent.getId());
+            em.remove(findParent);
 
             tx.commit();
 
