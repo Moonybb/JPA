@@ -1,6 +1,7 @@
 package hellojpa;
 
 import jakarta.persistence.*;
+import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,13 +17,24 @@ public class JpaMain {
 
         try {
             Member member = new Member();
-            member.setUserName("user1");
-            member.setCreatedBy("kim");
-            member.setCreateDate(LocalDateTime.now());
+            member.setUserName("member1");
+            em.persist(member);
+
+            em.flush();
+            em.clear();
+
+            Member refMember = em.getReference(Member.class, member.getId());
+            System.out.println("refMember = " + refMember.getClass());
+
+            // refMember.getUserName(); // 강제 초기화
+            Hibernate.initialize(refMember);
+
+            System.out.println("isLoaded = " + emf.getPersistenceUnitUtil().isLoaded(refMember));
 
             tx.commit();
         }catch (Exception e) {
             tx.rollback();
+            e.printStackTrace();
         }finally {
             em.close();
         }
