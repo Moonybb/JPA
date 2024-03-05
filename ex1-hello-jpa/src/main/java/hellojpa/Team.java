@@ -9,7 +9,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public @Getter @Setter class Team {
+public @Getter @Setter class Team extends BaseEntity {
 
     @Id
     @GeneratedValue
