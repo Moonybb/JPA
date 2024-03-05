@@ -16,39 +16,20 @@ public class JpaMain {
         tx.begin();
 
         try {
-            Team teamA = new Team();
-            teamA.setName("teamA");
-            em.persist(teamA);
 
-            Team teamB = new Team();
-            teamB.setName("teamB");
-            em.persist(teamB);
+            Child child1 = new Child();
+            Child child2 = new Child();
 
-            Member member1 = new Member();
-            member1.setUserName("member1");
-            member1.setTeam(teamA);
-            em.persist(member1);
+            Parent parent = new Parent();
+            parent.addChild(child1);
+            parent.addChild(child2);
 
-            Member member2 = new Member();
-            member2.setUserName("member2");
-            member2.setTeam(teamB);
-            em.persist(member2);
-
-            em.flush();
-            em.clear();
-
-//            Member m = em.find(Member.class, member.getId());
-//            System.out.println("m = " + m.getTeam().getClass());
-//
-//            System.out.println("======================");
-//            m.getTeam().getName(); // 프록시 초기화
-//            System.out.println("======================");
-
-            // 실무에서는 LAZY 지연로딩을 사용하자
-            List<Member> members = em.createQuery("select m from Member m join fetch m.team", Member.class)
-                    .getResultList();
+            em.persist(parent);
+            em.persist(child1);
+            em.persist(child2);
 
             tx.commit();
+
         }catch (Exception e) {
             tx.rollback();
             e.printStackTrace();
@@ -59,15 +40,4 @@ public class JpaMain {
         emf.close();
     }
 
-    private static void printMember(Member member) {
-        System.out.println("member = " + member.getUserName());
-    }
-    
-    private static void printMemberAndTeam(Member member) {
-        String userName = member.getUserName();
-        System.out.println("userName = " + userName);
-        
-        Team team = member.getTeam();
-        System.out.println("team = " + team.getName());
-    }
 }
