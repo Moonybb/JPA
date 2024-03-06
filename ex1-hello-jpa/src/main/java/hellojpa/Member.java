@@ -3,6 +3,9 @@ package hellojpa;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Entity
 @SequenceGenerator(name = "member_seq_generator", sequenceName = "member_seq")
 @NoArgsConstructor
@@ -15,8 +18,17 @@ public @Getter @Setter class Member extends BaseEntity {
     @Column(name = "USERNAME")
     private String userName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TEAM_ID")
-    private Team team;
+    // 기간 Period
+    @Embedded
+    private Period workPeriod;
+//    private LocalDateTime startDate;
+//    private LocalDateTime endDate;
+
+    // 주소 Adress
+    @Embedded
+    private Adress homeAdress;
+//    private String city;
+//    private String street;
+//    private String zipCode;
 
 }

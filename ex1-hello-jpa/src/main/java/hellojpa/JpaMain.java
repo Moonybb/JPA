@@ -1,10 +1,9 @@
 package hellojpa;
 
-import jakarta.persistence.*;
-import org.hibernate.Hibernate;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.Persistence;
 
 public class JpaMain {
 
@@ -17,21 +16,11 @@ public class JpaMain {
 
         try {
 
-            Child child1 = new Child();
-            Child child2 = new Child();
-
-            Parent parent = new Parent();
-            parent.addChild(child1);
-            parent.addChild(child2);
-
-            em.persist(parent);
-
-            em.flush();
-            em.clear();
-
-            // orphanRemoval 가 true기 때문에 부모가 삭제되면 딸려있는 자식들이 모두 삭제됨
-            Parent findParent = em.find(Parent.class, parent.getId());
-            em.remove(findParent);
+            Member member = new Member();
+            member.setUserName("hello");
+            member.setHomeAdress(new Adress("city", "street", "10000"));
+            member.setWorkPeriod(new Period());
+            em.persist(member);
 
             tx.commit();
 

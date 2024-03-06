@@ -18,7 +18,4 @@ public @Getter @Setter class Team extends BaseEntity {
 
     private String name;
 
-    @OneToMany(mappedBy = "team")
-    private List<Member> members = new ArrayList<>();
-
 }
