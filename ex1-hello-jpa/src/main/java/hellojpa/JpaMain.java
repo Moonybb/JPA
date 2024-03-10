@@ -4,6 +4,11 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+
+import java.util.List;
 
 public class JpaMain {
 
@@ -16,39 +21,34 @@ public class JpaMain {
 
         try {
 
-            Member member = new Member();
-            member.setUserName("hello");
-            member.setHomeAddress(new Address("home", "street", "10000"));
+            // JPQL [객체지향 SQL]
+            List<Member> resultList1 = em.createQuery(
+                    "select m from Member m where m.userName like '%kim%'",
+                    Member.class
+            ).getResultList();
 
-            member.getFavoriteFoods().add("치킨");
-            member.getFavoriteFoods().add("족발");
-            member.getFavoriteFoods().add("피자");
+            List<Member> resultList2 = em.createNativeQuery(
+                    "select memberId, city, street, zipCode, userName from MEMBER"
+            ).getResultList();
 
-            member.getAddressHistory().add(new AddressEntity("old1", "street", "10000"));
-            member.getAddressHistory().add(new AddressEntity("old2", "street", "10000"));
 
-            em.persist(member);
+            // Criteria (실무에서 사용하지 않음)
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<Member> query = cb.createQuery(Member.class);
 
-            em.flush();
-            em.clear();
+            Root<Member> m = query.from(Member.class);
+            CriteriaQuery<Member> cq = query.select(m);
 
-            System.out.println("=============START=============");
-            Member findMember = em.find(Member.class, member.getId());
+            String userName = "abcd";
+            if (userName != null) {
+                cq = cq.where(cb.equal(m.get("userName"), "kim"));
+            }
+            List<Member> resultList = em.createQuery(cq).getResultList();
 
-            // 아래처럼 수정하면 안됨
-            // findMember.getHomeAdress().setCity("newCity");
 
-            // 이렇게 값 타입 컬렉션 자체를 갈아끼워주어 수정해야함.
-//            Address address = findMember.getHomeAddress();
-//            findMember.setHomeAddress(new AddressEntity("newCity", address.getStreet(), address.getZipCode()));
+            // QueryDSL
 
-            // 치킨 -> 한식
-//            findMember.getFavoriteFoods().remove("치킨");
-//            findMember.getFavoriteFoods().add("한식");
 
-            // 주소 변경
-//            findMember.getAdressHistory().remove(new Address("old1", "street", "10000"));
-//            findMember.getAdressHistory().add(new Address("newCity", "street", "10000"));
 
             tx.commit();
 

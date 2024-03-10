@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
+@Table(name = "MEMBER")
 @SequenceGenerator(name = "member_seq_generator", sequenceName = "member_seq")
 @NoArgsConstructor
 @AllArgsConstructor
-public @Getter
-@Setter class Member extends BaseEntity {
+public @Getter @Setter class Member extends BaseEntity {
     @Id
     @GeneratedValue
     @Column(name = "memberId")
