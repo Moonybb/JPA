@@ -14,72 +14,92 @@ public class JpaMain {
         tx.begin();
 
         try {
-            Team team = new Team();
-            team.setName("teamA");
-            em.persist(team);
+            Team teamA = new Team();
+            teamA.setName("teamA");
+            em.persist(teamA);
+
+            Team teamB = new Team();
+            teamB.setName("teamB");
+            em.persist(teamB);
 
             Member member1 = new Member();
-            member1.setUsername("member");
-            member1.setAge(10);
-            member1.setType(MemberType.ADMIN);
-            member1.changeTeam(team);
+            member1.setUsername("회원1");
+            member1.changeTeam(teamA);
             em.persist(member1);
 
             Member member2 = new Member();
-            member2.setUsername(null);
-            member2.setAge(20);
-            member2.setType(MemberType.ADMIN);
-            member2.changeTeam(team);
+            member2.setUsername("회원2");
+            member2.changeTeam(teamA);
             em.persist(member2);
 
             Member member3 = new Member();
-            member3.setUsername("관리자");
-            member3.setAge(30);
-            member3.setType(MemberType.ADMIN);
-            member3.changeTeam(team);
+            member3.setUsername("회원3");
+            member3.changeTeam(teamB);
             em.persist(member3);
 
             em.flush();
             em.clear();
 
-            // 명시적 조인 : join 키워드를 직접 사용
-            // select m from Member m join m.team t
+            // fetch join
+            // SQL 조인 종류가 아님
+            // JPQL에서 성능 최적화를 위해 제공
+            // 연관된 엔티티나 컬렉션을 SQL 한 번에 함께 조회하는 기능
+            // join fetch 명령어 사용
+            // 페치 조인 ::= [LEFT [OUTER] | INNER] JOIN FETCH 조인 경로
 
-            // 묵시적 조인 : 경로 표현식에 의해 묵시적으로 SQL 조인 발생 (내부 조인만 가능)
-            // select m.team from Member m
+            // 엔티티 페치 조인
+            // JPQL : select m from Member m join fetch m.team
+            // SQL : SELECT M.*, T.* FROM MEMBER M INNER JOIN TEAM T ON M.TEAM_ID = T.ID
 
-            // 묵시적 내부 조인 발생
-            // 이렇게 쿼리를 짜는건 권장하지 않음
-            String query1 = "select m.team from Member m";
-            List<Team> result1 = em.createQuery(query1, Team.class)
+            // 페치조인 미사용 (지연로딩, 프록시로 들고와서 get 할 때마다 조회함.. N+1 발생)
+            String query1 = "select m From Member m";
+
+            List<Member> result1 = em.createQuery(query1, Member.class)
                     .getResultList();
 
-            for (Team s : result1) {
-                System.out.println("s = " + s.getName());
+            for (Member member : result1) {
+                System.out.println("member = " + member + "team = " + member.getTeam().getName());
+
+                // 회원 100명 -> N + 1
             }
 
-            // 컬렉션 값은 묵시적 내부 조인은 발생하지만 탐색할 수 없다.
-            // 이것도 권장하지 않는 방법
-            String query2 = "select t.members from Team t";
-            List result2 = em.createQuery(query2, Collections.class)
+            // 페치조인 사용(즉시로딩, 처음부터 한방쿼리로 들고옴)
+            // 지연로딩(LAZY)로 세팅되어있어도 fetch join이 우선으로 작동함
+            String query2 = "select m From Member m join fetch m.team";
+
+            List<Member> result2 = em.createQuery(query2, Member.class)
                     .getResultList();
 
-            for (Object o : result2) {
-                System.out.println("o = " + o);
+            for (Member member : result2) {
+                System.out.println("member = " + member + "team = " + member.getTeam().getName());
             }
 
-            // 컬렉션 값 내부탐색을 하기 위해 아래처럼 명시적 조인을 사용해 탐색한다.
-            // 명시적 조인을 통해 별칭을 얻어 접근
-            String query3 = "select m.username from Team t join t.members m";
-            List<String> result3 = em.createQuery(query3, String.class)
+            // 페치조인
+            String query3 = "select t From Team t join fetch t.members";
+
+            List<Team> result3 = em.createQuery(query3, Team.class)
                     .getResultList();
 
-            for (String s : result3) {
-                System.out.println("s = " + s);
+            System.out.println("result3.size() = " + result3.size());
+
+            for (Team team : result3) {
+                System.out.println("team = " + team.getName() + " | members = " + team.getMembers().size());
+                System.out.println("===> " + team.getMembers());
             }
 
-            // 가급적 묵시적 조인 대신 명시적 조인을 사용!
-            // 묵시적 조인은 조인이 일어나는 상황을 한 눈에 파악하기 어려움
+            // distinct
+            // 같은 식별자를 가진 Team 엔티티를 제거한다.
+            String query4 = "select distinct t From Team t join fetch t.members";
+
+            List<Team> result4 = em.createQuery(query4, Team.class)
+                    .getResultList();
+
+            System.out.println("result4.size() = " + result4.size());
+
+            for (Team team : result4) {
+                System.out.println("team = " + team.getName() + " | members = " + team.getMembers().size());
+                System.out.println("===> " + team.getMembers());
+            }
 
             tx.commit();
         }catch (Exception e) {
