@@ -5,9 +5,6 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 
-import java.util.List;
-import java.util.Set;
-
 public class JpaMain {
 
     public static void main(String[] args) {
@@ -21,14 +18,14 @@ public class JpaMain {
 
             Member member = new Member();
             member.setUserName("hello");
-            member.setHomeAdress(new Adress("home", "street", "10000"));
+            member.setHomeAddress(new Address("home", "street", "10000"));
 
             member.getFavoriteFoods().add("치킨");
             member.getFavoriteFoods().add("족발");
             member.getFavoriteFoods().add("피자");
 
-            member.getAdressHistory().add(new Adress("old1", "street", "10000"));
-            member.getAdressHistory().add(new Adress("old2", "street", "10000"));
+            member.getAddressHistory().add(new AddressEntity("old1", "street", "10000"));
+            member.getAddressHistory().add(new AddressEntity("old2", "street", "10000"));
 
             em.persist(member);
 
@@ -38,16 +35,20 @@ public class JpaMain {
             System.out.println("=============START=============");
             Member findMember = em.find(Member.class, member.getId());
 
-            // 값 타입 컬렉션도 지연 로딩 전략 사용
-            List<Adress> adressHistory = findMember.getAdressHistory();
-            for(Adress adress : adressHistory) {
-                System.out.println("adress = " + adress.getCity());
-            }
+            // 아래처럼 수정하면 안됨
+            // findMember.getHomeAdress().setCity("newCity");
 
-            Set<String> favoriteFoods = findMember.getFavoriteFoods();
-            for (String favoriteFood : favoriteFoods) {
-                System.out.println("favoriteFood = " + favoriteFood);
-            }
+            // 이렇게 값 타입 컬렉션 자체를 갈아끼워주어 수정해야함.
+//            Address address = findMember.getHomeAddress();
+//            findMember.setHomeAddress(new AddressEntity("newCity", address.getStreet(), address.getZipCode()));
+
+            // 치킨 -> 한식
+//            findMember.getFavoriteFoods().remove("치킨");
+//            findMember.getFavoriteFoods().add("한식");
+
+            // 주소 변경
+//            findMember.getAdressHistory().remove(new Address("old1", "street", "10000"));
+//            findMember.getAdressHistory().add(new Address("newCity", "street", "10000"));
 
             tx.commit();
 

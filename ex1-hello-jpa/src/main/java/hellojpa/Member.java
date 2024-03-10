@@ -26,15 +26,21 @@ public @Getter
     private String userName;
 
     @Embedded
-    private Adress homeAdress;
+    private Address homeAddress;
 
     @ElementCollection
     @CollectionTable(name = "FAVORITE_FOOD", joinColumns = @JoinColumn(name = "MEMBER_ID"))
     @Column(name = "FOOD_NAME")
     private Set<String> favoriteFoods = new HashSet<>();
 
-    @ElementCollection
-    @CollectionTable(name = "ADRESS", joinColumns = @JoinColumn(name = "MEMBER_ID"))
-    private List<Adress> adressHistory = new ArrayList<>();
+//    @ElementCollection
+//    @CollectionTable(name = "ADRESS", joinColumns = @JoinColumn(name = "MEMBER_ID"))
+//    private List<Adress> adressHistory = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "MEMBER_ID")
+    private List<AddressEntity> addressHistory = new ArrayList<>();
+
+
 
 }
