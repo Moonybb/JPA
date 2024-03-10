@@ -20,6 +20,9 @@ public @Getter @Setter class Member {
     @JoinColumn(name = "TEAM_Id")
     private Team team;
 
+    @Enumerated(EnumType.STRING)
+    private MemberType type;
+
     public void changeTeam(Team team) {
         this.team = team;
         team.getMembers().add(this);
