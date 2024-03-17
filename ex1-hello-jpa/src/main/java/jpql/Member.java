@@ -6,6 +6,10 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
+@NamedQuery(
+        name = "Member.findByUsername",
+        query = "select m from Member m where m.username = :username"
+)
 @ToString
 public @Getter @Setter class Member {
 
